@@ -314,11 +314,7 @@ sbk_attachment_id_to_string(const struct sbk_attachment *att)
 {
 	static char buf[48];
 
-	if (att->id.unique_id == 0)
-		snprintf(buf, sizeof buf, "%" PRId64, att->id.row_id);
-	else
-		snprintf(buf, sizeof buf, "%" PRId64 "-%" PRId64,
-		    att->id.row_id, att->id.unique_id);
+	snprintf(buf, sizeof buf, "%" PRId64, att->id.row_id);
 
 	return buf;
 }
