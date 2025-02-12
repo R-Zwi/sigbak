@@ -50,6 +50,17 @@ enum {
 	FORMAT_HTML
 };
 
+int EndsWith(const char *str, const char *suffix)
+{
+    if (!str || !suffix)
+        return 0;
+    size_t lenstr = strlen(str);
+    size_t lensuffix = strlen(suffix);
+    if (lensuffix >  lenstr)
+        return 0;
+    return strncmp(str + lenstr - lensuffix, suffix, lensuffix) == 0;
+}
+
 static FILE *
 get_thread_file_named(int dfd, char *name)
 {
@@ -187,6 +198,7 @@ html_write_message(FILE *fp, struct sbk_message *msg)
 	struct sbk_attachment	*att;
 	struct sbk_reaction	*rct;
 	const char		*addr, *name, *text;
+	char tag[16];
 
 	addr = (msg->recipient->type == SBK_CONTACT) ?
 	    msg->recipient->contact->phone : "group";
@@ -212,8 +224,12 @@ html_write_message(FILE *fp, struct sbk_message *msg)
 			char *attFName=	get_file_name(att, FLAG_FILENAME_ID);	// always add the ID to ensure unique names
 			if (attFName==NULL)
 				attFName=	strdup("missingfilename");
-			
-			fprintf(fp, "  <img class=\"attachment\" src=\"%s\"/>\n",attFName);	// attachment source
+			strcpy(tag,"img");	// default tag: image
+			if (EndsWith(attFName,".mp4"))
+				strcpy(tag,"video");
+			else if ( EndsWith(attFName,".mp3") ||  (EndsWith(attFName,".aac")) )
+				strcpy(tag,"audio");
+			fprintf(fp, "  <%s class=\"attachment\" src=\"%s\"/>\n", tag, attFName);	// attachment source
 			free(attFName);
 		} // TAILQ_FOREACH
 	
